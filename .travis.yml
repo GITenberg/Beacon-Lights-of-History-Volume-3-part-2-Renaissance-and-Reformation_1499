@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: D7Rku+tcVNqFcK64U2MzS6bDCYJkoMw/ndfYK2iqBbBXyxNYA/lGgHWNogPQ5g3oBmtsHSbO7xqaxskeU66+UeiCXkqtdNNDlDDl37ViTEEMBMUdoi9Y5kqwQSbRM5rQZ1+0OxoJQdB09H3bbE5chtnPkM6YqeeSIRJ4/2eUesCnaFacs2IJGrllSnjAa7bhKR5vEFvRT+CvusZqh79eWHWi0iQxRTCjtTZP0Qe2QSUXVbJKHM65Fcr05yKYEPjVYnH3er+v/w1upzMWLO7aO1dwBvoU+CDcDSGIt2hMwsM3oazV3WVi2p809i32xW+8ByAlGoa96BCU3wvbenbvt7QKSLkBUNhc8NaeBypUHe3ZPvTmJxpR8btZa/KDR88RAgq3D9eiqZv8Qo47zgYSARpZuN/5H/1zzaZZf4jNJszhSgPQsVq7De32oOwrpd0/BN/1RXKezJslI0f9+WT86zgwmR7FxQty9aHmv9RH95Ym2v3eqHZCaTq03cDhejgZu+krKVrvZa5OYAS4J8SKqI98xf/+cm2LRN5CuqQrlboOTe/ShvjV8c/XP7P69nuub4DhEnF9X2u4c7BiEGyCMsr77I9p7AYP0rvYWjbkdLZ47rTqlPPBEn1I2Xcurm1YV5WTlkTjv9XFkT0NsMH8rfcpbE7vnoMw0W3vyZyBXhA=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Beacon-Lights-of-History-Volume-3-part-2-Renaissance-and-Reformation_1499
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
